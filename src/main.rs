@@ -31,7 +31,7 @@ type StatePtr = Rc<RefCell<State>>;
 fn construct_const_nfa(c: char, id_counter: &mut i16) -> StateModule {
     let input = Rc::new(RefCell::new(State::new(*id_counter)));
     let output = Rc::new(RefCell::new(State::new(*id_counter + 1)));
-    *id_counter += 1;
+    *id_counter += 2;
 
     input.borrow_mut().transitions.insert(c, Rc::clone(&output));
     StateModule { input, output }
@@ -40,10 +40,27 @@ fn construct_const_nfa(c: char, id_counter: &mut i16) -> StateModule {
 fn construct_kleene_plus_nfa(c: char, id_counter: &mut i16) -> StateModule {
     let input = Rc::new(RefCell::new(State::new(*id_counter)));
     let output = Rc::new(RefCell::new(State::new(*id_counter + 1)));
-    *id_counter += 1;
+    *id_counter += 2;
 
     input.borrow_mut().transitions.insert(c, Rc::clone(&output));
     output.borrow_mut().e_transitions.push(Rc::clone(&input));
+
+    StateModule { input, output }
+}
+
+fn construct_kleene_star_nfa(c: char, id_counter: &mut i16) -> StateModule {
+    let input = Rc::new(RefCell::new(State::new(*id_counter)));
+    let q1 = Rc::new(RefCell::new(State::new(*id_counter + 1)));
+    let q2 = Rc::new(RefCell::new(State::new(*id_counter + 2)));
+    let output = Rc::new(RefCell::new(State::new(*id_counter + 3)));
+    *id_counter += 4;
+
+    input.borrow_mut().e_transitions.push(Rc::clone(&q1));
+    input.borrow_mut().e_transitions.push(Rc::clone(&output));
+    q1.borrow_mut().transitions.insert(c, Rc::clone(&q2));
+    q1.borrow_mut().e_transitions.push(Rc::clone(&output));
+    q2.borrow_mut().e_transitions.push(Rc::clone(&q1));
+    q2.borrow_mut().e_transitions.push(Rc::clone(&output));
 
     StateModule { input, output }
 }
@@ -60,6 +77,10 @@ fn construct_nfa(regex: &str) -> StatePtr {
             Some(&'+') => {
                 chars.next();
                 construct_kleene_plus_nfa(c, &mut id_counter)
+            }
+            Some(&'*') => {
+                chars.next();
+                construct_kleene_star_nfa(c, &mut id_counter)
             }
             _ if c.is_alphabetic() => construct_const_nfa(c, &mut id_counter),
             _ => {
@@ -124,8 +145,8 @@ fn match_regex(nfa: StatePtr, input: &str) -> bool {
 }
 
 fn main() {
-    let regex = "aaba+b";
-    let input = "aabaaaaaab";
+    let regex = "a*b";
+    let input = "aaab";
     let init_state = construct_nfa(regex);
     println!("{}", match_regex(Rc::clone(&init_state), input))
 }
