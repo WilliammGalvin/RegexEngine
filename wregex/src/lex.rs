@@ -110,6 +110,7 @@ impl fmt::Display for LexError {
 
 impl std::error::Error for LexError {}
 
+#[derive(Debug)]
 pub struct Lexer<'a> {
     chars: CharIndices<'a>,
 }
