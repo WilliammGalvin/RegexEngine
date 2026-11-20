@@ -1,7 +1,10 @@
-pub mod ast;
+mod ast;
+mod dfa;
 mod lex;
-pub mod nfa;
+mod nfa;
 mod parse;
+mod regex;
 
-pub use lex::{LexError, Lexer, Span, Spanned, Token, tokenize};
-pub use parse::{ParseError, ParseErrorKind, parse, parse_str};
+pub use lex::Span;
+pub use parse::{ParseError, ParseErrorKind};
+pub use regex::{Error, Regex};

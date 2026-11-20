@@ -5,10 +5,10 @@ use crate::ast::{Assertion, Ast, Class, Repeat};
 
 const MAX_WORK: usize = 100_000;
 
-type StateId = usize;
+pub(crate) type StateId = usize;
 
 #[derive(Debug, Clone)]
-enum State {
+pub(crate) enum State {
     Char { c: char, next: StateId },
     Any { next: StateId },
     Class { class: Class, next: StateId },
@@ -37,9 +37,9 @@ impl std::error::Error for BuildError {}
 
 #[derive(Debug, Clone)]
 pub struct Nfa {
-    states: Vec<State>,
-    start: StateId,
-    accept: StateId,
+    pub(crate) states: Vec<State>,
+    pub(crate) start: StateId,
+    pub(crate) accept: StateId,
 }
 
 impl Nfa {
@@ -113,7 +113,7 @@ impl Nfa {
         }
     }
 
-    fn step(&self, id: StateId, c: char) -> Option<StateId> {
+    pub(crate) fn step(&self, id: StateId, c: char) -> Option<StateId> {
         match &self.states[id] {
             State::Char { c: want, next } if *want == c => Some(*next),
             State::Any { next } if c != '\n' => Some(*next),
