@@ -42,7 +42,7 @@ impl Class {
     pub fn matches(&self, c: char) -> bool {
         let found = self.items.iter().any(|item| match *item {
             ClassItem::Char(x) => x == c,
-            ClassItem::Range(lo, hi) => (lo..hi).contains(&c),
+            ClassItem::Range(lo, hi) => (lo..=hi).contains(&c),
         });
 
         found != self.negated
